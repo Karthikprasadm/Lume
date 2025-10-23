@@ -37,6 +37,138 @@ For the installer:
   * [Community Visual Studio Extension](https://marketplace.visualstudio.com/items?itemName=FireGiant.FireGiantHeatWaveDev17)
 * [Windows SDK Signing Tools for Desktop Apps](https://developer.microsoft.com/fr-fr/windows/downloads/windows-10-sdk)
 
+### Quick start (build and run from source)
+
+1. Install Visual Studio 2022 Build Tools (MSBuild workload).
+2. Install the .NET Framework 4.8.1 Developer Pack (reference assemblies).
+3. Build (x64 Release):
+
+   ```bash
+   msbuild FileConverter.sln /m /restore /p:Configuration=Release /p:Platform=x64
+   ```
+
+4. Run the application:
+
+   ```bash
+   Application\FileConverter\bin\x64\Release\FileConverter.exe
+   ```
+
+Note: Building the solution (not only the project) also builds the Explorer shell extension and copies required middlewares next to the executable.
+
+### Register the Explorer shell extension (developer setup)
+
+The app integrates into Windows Explorer’s context menu via a COM shell extension. For a developer build:
+
+1. Ensure the app path is discoverable (normally handled by the installer). For dev runs, the shell extension reads `HKCU\Software\FileConverter` value `Path` to locate the executable.
+2. Register the extension using the app itself (requires elevation):
+
+   ```bash
+   Application\FileConverter\bin\x64\Release\FileConverter.exe --register-shell-extension "Application\FileConverterExtension\bin\x64\Release\FileConverterExtension.dll"
+   ```
+
+3. To unregister:
+
+   ```bash
+   Application\FileConverter\bin\x64\Release\FileConverter.exe --unregister-shell-extension "Application\FileConverterExtension\bin\x64\Release\FileConverterExtension.dll"
+   ```
+
+4. Reload Explorer to pick up changes (Windows 11/10): restart the “Windows Explorer” process from Task Manager, or sign out/in.
+
+Tip (Windows 11): the entry lives under “Show more options” in the right‑click menu.
+
+### Command‑line usage (advanced)
+
+The GUI can be driven from the command line for automation:
+
+- Show settings window
+
+  ```bash
+  FileConverter.exe --settings
+  ```
+
+- Convert using a preset and explicit files
+
+  ```bash
+  FileConverter.exe --conversion-preset "To Webm" "C:\path\to\input.mp4"
+  ```
+
+- Convert a list of files via a text file (one path per line)
+
+  ```bash
+  FileConverter.exe --conversion-preset "To Mp3" --input-files "C:\temp\inputs.txt"
+  ```
+
+- Misc utilities
+
+  ```bash
+  FileConverter.exe --version
+  FileConverter.exe --verbose
+  FileConverter.exe --post-install-init
+  ```
+
+## Troubleshooting for developers
+
+- MSBuild not found
+
+  ```bash
+  winget install --id Microsoft.VisualStudio.2022.BuildTools --source winget \
+    --accept-package-agreements --accept-source-agreements
+  # Locate MSBuild
+  "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -requires Microsoft.Component.MSBuild -find "MSBuild\\**\\Bin\\MSBuild.exe"
+  ```
+
+- .NETFramework v4.8 reference assemblies missing (MSB3644)
+
+  Install the developer pack and/or retarget to 4.8.1:
+
+  ```bash
+  winget install --id Microsoft.DotNet.Framework.DeveloperPack_4 --source winget \
+    --accept-package-agreements --accept-source-agreements
+  # Or edit csproj: <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
+  ```
+
+- Post‑build copy shows "*Undefined*Middleware" when building only the project
+
+  Build the solution `FileConverter.sln` (so `$(SolutionDir)` is set) or copy required middleware next to the exe:
+
+  ```bash
+  copy /Y Middleware\ffmpeg\ffmpeg.exe Application\FileConverter\bin\x64\Release\ffmpeg.exe
+  copy /Y Middleware\gs\gsdll64.dll Application\FileConverter\bin\x64\Release\gsdll64.dll
+  copy /Y Middleware\gs\gswin64c.exe Application\FileConverter\bin\x64\Release\gswin64c.exe
+  ```
+
+- Shell extension doesn’t appear
+
+  1) Register it (elevated):
+
+  ```bash
+  Application\FileConverter\bin\x64\Release\FileConverter.exe \
+    --register-shell-extension "Application\FileConverterExtension\bin\x64\Release\FileConverterExtension.dll"
+  ```
+
+  2) Ensure the app path is discoverable (dev builds): set `HKCU\Software\FileConverter` string value `Path` to the full `FileConverter.exe` path.
+
+  3) Restart Explorer (Task Manager → restart "Windows Explorer"). On Windows 11, use “Show more options” in the right‑click menu.
+
+- WiX/installer build issues
+
+  If `Installer.sign` is missing or WiX is not set up, build the application projects only. The installer is optional for development.
+
+- Office interop version conflict warnings (MSB3277)
+
+  These are benign for development builds. If you automate Office conversions, ensure Office is installed or reference the version you target.
+
+- Logs and diagnostics
+
+  Run with `--verbose`. Logs are written under `C:\Users\<User>\AppData\Local\FileConverter\Diagnostics-*`.
+
+- Unregister extension (elevated)
+
+  ```bash
+  Application\FileConverter\bin\x64\Release\FileConverter.exe \
+    --unregister-shell-extension "Application\FileConverterExtension\bin\x64\Release\FileConverterExtension.dll"
+  ```
+
 ## Thanks
 
 Thanks to all the contributors of File Converter project.
