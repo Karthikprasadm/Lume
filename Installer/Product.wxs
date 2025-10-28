@@ -1,6 +1,6 @@
 ﻿<!-- Upgrade documentation: http://wixtoolset.org/documentation/manual/v3/howtos/updates/major_upgrade.html -->
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
-    <Package Name="File Converter" Language="1033" Version="2.1.0" Manufacturer="Adrien Allard" UpgradeCode="e3ca717b-a897-418a-bbef-5c7e35c76e4b" InstallerVersion="500">
+    <Package Name="Lume Converter" Language="1033" Version="2.1.0" Manufacturer="Lume" UpgradeCode="e3ca717b-a897-418a-bbef-5c7e35c76e4b" InstallerVersion="500">
         <Icon Id="icon.ico" SourceFile="..\Resources\Icons\ApplicationIcon.ico" />
         <Property Id="ARPPRODUCTICON" Value="icon.ico" />
         <SetProperty Id="ARPINSTALLLOCATION" Value="[ApplicationFolder]" After="CostFinalize" />
@@ -14,9 +14,9 @@
             <ComponentGroupRef Id="Languages" />
         </Feature>
 
-        <CustomAction Id="InstallShell" ExeCommand="--register-shell-extension &quot;[INSTALLFOLDER]FileConverterExtension.dll&quot;" Execute="deferred" Return="check" Impersonate="no" FileRef="FileConverter.exe" />
-        <CustomAction Id="UninstallShell" ExeCommand="--unregister-shell-extension &quot;[INSTALLFOLDER]FileConverterExtension.dll&quot;" Execute="deferred" Return="check" Impersonate="no" FileRef="FileConverter.exe" />
-        <CustomAction Id="PostInstallInit" ExeCommand="--post-install-init" Execute="immediate" FileRef="FileConverter.exe" />
+        <CustomAction Id="InstallShell" ExeCommand="--register-shell-extension &quot;[INSTALLFOLDER]FileConverterExtension.dll&quot;" Execute="deferred" Return="check" Impersonate="no" FileRef="LumeConverter.exe" />
+        <CustomAction Id="UninstallShell" ExeCommand="--unregister-shell-extension &quot;[INSTALLFOLDER]FileConverterExtension.dll&quot;" Execute="deferred" Return="check" Impersonate="no" FileRef="LumeConverter.exe" />
+        <CustomAction Id="PostInstallInit" ExeCommand="--post-install-init" Execute="immediate" FileRef="LumeConverter.exe" />
 
         <UI>
             <ProgressText Action="InstallFiles" Template="File: [1],  Directory: [9],  Size: [6]" Message="Copying new files" />
@@ -53,7 +53,7 @@
             <Directory Id="INSTALLFOLDER" Name="!(bind.Property.ProductName)" />
         </StandardDirectory>
         <StandardDirectory Id="ProgramMenuFolder">
-            <Directory Id="ApplicationStartMenuShortcut" Name="File Converter" />
+            <Directory Id="ApplicationStartMenuShortcut" Name="Lume Converter" />
         </StandardDirectory>
     </Fragment>
 
@@ -61,18 +61,18 @@
         <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
             <!-- Application -->
             <Component Guid="{EFA8CCE9-E501-4C80-AE33-710D11CC2525}">
-                <File Id="FileConverter.exe" Source="$(var.FileConverter.TargetPath)" KeyPath="yes" Checksum="yes">
-                    <Shortcut Id="ApplicationStartMenuShortcut" Directory="ApplicationStartMenuShortcut" Advertise="yes" WorkingDirectory="INSTALLFOLDER" Name="File Converter" Description="Convert and compress everything in 2 clicks!" Icon="Icon.exe">
+                <File Id="LumeConverter.exe" Source="$(var.FileConverter.TargetPath)" KeyPath="yes" Checksum="yes">
+                    <Shortcut Id="ApplicationStartMenuShortcut" Directory="ApplicationStartMenuShortcut" Advertise="yes" WorkingDirectory="INSTALLFOLDER" Name="Lume Converter" Description="Convert and compress everything in 2 clicks!" Icon="Icon.exe">
                         <Icon Id="Icon.exe" SourceFile="$(var.FileConverter.TargetPath)" />
                     </Shortcut>
-                    <Shortcut Id="ApplicationSettingsStartMenuShortcut" Directory="ApplicationStartMenuShortcut" Advertise="yes" WorkingDirectory="INSTALLFOLDER" Name="File Converter Settings" Description="Configure the conversion and compression presets" Arguments="--settings" Icon="SettingsIcon.exe">
+                    <Shortcut Id="ApplicationSettingsStartMenuShortcut" Directory="ApplicationStartMenuShortcut" Advertise="yes" WorkingDirectory="INSTALLFOLDER" Name="Lume Converter Settings" Description="Configure the conversion and compression presets" Arguments="--settings" Icon="SettingsIcon.exe">
                         <Icon Id="SettingsIcon.exe" SourceFile="$(var.FileConverter.TargetPath)" />
                     </Shortcut>
                 </File>
                 <RemoveFolder Id="RemoveStartMenuDir" Directory="ApplicationStartMenuShortcut" On="uninstall" />
             </Component>
             <Component Guid="{3E003FD3-46CA-4F4F-811E-663332828229}">
-                <File Id="FileConverter.exe.config" Source="$(var.FileConverter.TargetDir)FileConverter.exe.config" KeyPath="yes" Checksum="yes" />
+                <File Id="LumeConverter.exe.config" Source="$(var.FileConverter.TargetDir)LumeConverter.exe.config" KeyPath="yes" Checksum="yes" />
             </Component>
             
             <!-- Extension -->
@@ -157,6 +157,9 @@
             <Component Guid="{FF6ADF7B-20A1-4222-8949-DD39D315CBEC}">
                 <File Id="README.md" Source="..\README.md" KeyPath="yes" />
             </Component>
+            <Component Guid="{18F8E5B5-1E9E-4A8A-AE64-6C4B2F30E5B6}">
+                <File Id="HOW_TO_USE.md" Source="..\how_to_use.md" KeyPath="yes" />
+            </Component>
             <Component Guid="{FF0ACDA8-DCAB-44C9-8004-CBD58EF418F6}">
                 <File Id="CHANGELOG.md" Source="..\CHANGELOG.md" KeyPath="yes" />
             </Component>
@@ -166,8 +169,8 @@
 
             <!-- Registry entries -->
             <Component Id="RegistryEntries" Guid="{1862E9DC-1B37-4AFD-85BF-2E9CFFAFA9F8}">
-                <RegistryKey Root="HKCU" Key="Software\FileConverter" ForceDeleteOnUninstall="yes">
-                    <RegistryValue Name="Path" Type="string" Value="[INSTALLFOLDER]FileConverter.exe" />
+                <RegistryKey Root="HKCU" Key="Software\LumeConverter" ForceDeleteOnUninstall="yes">
+                    <RegistryValue Name="Path" Type="string" Value="[INSTALLFOLDER]LumeConverter.exe" />
                 </RegistryKey>
             </Component>
         </ComponentGroup>

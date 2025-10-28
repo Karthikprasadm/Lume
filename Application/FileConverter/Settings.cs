@@ -6,6 +6,7 @@ namespace FileConverter
     using System.Xml.Serialization;
     using System.Collections.ObjectModel;
     using System.Globalization;
+    using System.IO;
 
     using CommunityToolkit.Mvvm.ComponentModel;
 
@@ -23,6 +24,9 @@ namespace FileConverter
         private int maximumNumberOfSimultaneousConversions;
         private bool copyFilesInClipboardAfterConversion = false;
         private Helpers.HardwareAccelerationMode hardwareAccelerationMode = Helpers.HardwareAccelerationMode.Off;
+        private bool verifyMiddlewareIntegrityAtStartup = true;
+        private ObservableCollection<WatchFolder> watchFolders = new ObservableCollection<WatchFolder>();
+        private string lastUsedPresetName = string.Empty;
 
         public ConversionPreset GetPresetFromName(string presetName)
         {
@@ -237,6 +241,28 @@ namespace FileConverter
                 this.OnPropertyChanged();
             }
         }
+
+        [XmlElement]
+        public bool VerifyMiddlewareIntegrityAtStartup
+        {
+            get { return this.verifyMiddlewareIntegrityAtStartup; }
+            set { this.verifyMiddlewareIntegrityAtStartup = value; this.OnPropertyChanged(); }
+        }
+
+        [XmlArray]
+        [XmlArrayItem("WatchFolder")]
+        public ObservableCollection<WatchFolder> WatchFolders
+        {
+            get { return this.watchFolders; }
+            set { this.watchFolders = value; this.OnPropertyChanged(); }
+        }
+
+        [XmlElement]
+        public string LastUsedPresetName
+        {
+            get { return this.lastUsedPresetName; }
+            set { this.lastUsedPresetName = value ?? string.Empty; this.OnPropertyChanged(); }
+        }
         public void OnDeserializationComplete()
         {
             this.DurationBetweenEndOfConversionsAndApplicationExit = System.Math.Max(0, System.Math.Min(10, this.DurationBetweenEndOfConversionsAndApplicationExit));
@@ -274,6 +300,18 @@ namespace FileConverter
                     this.ApplicationLanguage = CultureInfo.GetCultureInfo("en");
                 }
             }
+        }
+
+        public class WatchFolder : ObservableObject
+        {
+            [XmlAttribute]
+            public string Path { get; set; }
+
+            [XmlAttribute]
+            public string PresetName { get; set; }
+
+            [XmlAttribute]
+            public bool IncludeSubdirectories { get; set; }
         }
     }
 }

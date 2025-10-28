@@ -24,6 +24,8 @@ namespace FileConverter.ViewModels
         private RelayCommand showSettingsCommand;
         private RelayCommand showDiagnosticsCommand;
         private RelayCommand<CancelEventArgs> closeCommand;
+        private RelayCommand startConversionsCommand;
+        private RelayCommand retryFailedCommand;
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
@@ -98,6 +100,43 @@ namespace FileConverter.ViewModels
                 }
 
                 return this.closeCommand;
+            }
+        }
+
+        public ICommand StartConversionsCommand
+        {
+            get
+            {
+                if (this.startConversionsCommand == null)
+                {
+                    this.startConversionsCommand = new RelayCommand(() =>
+                    {
+                        Ioc.Default.GetRequiredService<IConversionService>().ConvertFilesAsync();
+                    });
+                }
+
+                return this.startConversionsCommand;
+            }
+        }
+
+        public ICommand RetryFailedCommand
+        {
+            get
+            {
+                if (this.retryFailedCommand == null)
+                {
+                    this.retryFailedCommand = new RelayCommand(() =>
+                    {
+                        var conversionService = Ioc.Default.GetRequiredService<IConversionService>();
+                        if (conversionService is Services.ConversionService concrete)
+                        {
+                            concrete.RetryFailed();
+                            concrete.ConvertFilesAsync();
+                        }
+                    });
+                }
+
+                return this.retryFailedCommand;
             }
         }
 

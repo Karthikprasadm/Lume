@@ -1,24 +1,63 @@
-# File Converter
+# Lume Converter
 
 ## Description
 
-**File Converter** is a very simple tool which allows you to convert and compress one or several file(s) using the context menu of windows explorer.
+**Lume Converter** is a very simple tool which allows you to convert and compress one or several file(s) using the context menu of windows explorer.
 
-![File Converter Usage](Resources/FileConverterUsage.gif)
+![Lume Converter Usage](Resources/FileConverterUsage.gif)
 
-You can download it here: [file-converter.io](https://file-converter.io/?from=readme.md).
+Forked from the original File Converter project. This distribution is rebranded as Lume Converter.
 
-You can find more information about what's in File converter and how to use it on the [wiki](https://github.com/Tichau/FileConverter/wiki).
+Getting started: see [how_to_use.md](how_to_use.md) for step‑by‑step install and usage.
+
+### Developer workflow (auto‑reload)
+
+For local development you can enable automatic rebuild and reload:
+
+```bash
+powershell -NoProfile -ExecutionPolicy Bypass -File DevTools\auto-reload.ps1
+```
+
+What it does when you save a file:
+- Builds Release x64 (MSBuild)
+- Copies middleware next to the exe if missing
+- Restarts LumeConverter.exe
+- Restarts Windows Explorer if the shell extension DLL changed
+
+If msbuild is not found, install Build Tools or set `MSBUILD` before launching the script:
+
+```bash
+winget install --id Microsoft.VisualStudio.2022.BuildTools --source winget --accept-package-agreements --accept-source-agreements --silent
+$env:MSBUILD="C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Current\\Bin\\amd64\\MSBuild.exe"; \
+  powershell -NoProfile -ExecutionPolicy Bypass -File DevTools\\auto-reload.ps1
+```
+
+### Features
+
+- Watch folders: add rows for folder, preset, include subfolders. New files are auto‑enqueued.
+- Verify middleware integrity at startup: optional presence/hash check of ffmpeg and Ghostscript.
+- Drag‑and‑drop: uses your last‑used preset; persisted automatically after drops.
+
+### File associations (optional)
+
+Register/unregister per‑user “Open with Lume Converter” entries for common types via CLI:
+
+```bash
+FileConverter.exe --register-associations
+FileConverter.exe --unregister-associations
+```
+
+You can find more information on the original project's wiki: [File Converter wiki](https://github.com/Tichau/FileConverter/wiki).
 
 ## Donate
 
-File Converter is a personal open source project started in 2014. I have put hundreds of hours adding, refining and tuning File Converter with the goal of making the conversion and compression of files an easy task for everyone.
+This project is based on the open-source File Converter. Thanks to the original authors and contributors.
 
 You can help me by [contributing to the project](https://github.com/Tichau/FileConverter/wiki#contribute), by [making a donation](https://www.paypal.com/donate/?cmd=_donations&business=3BDWQTYTTA3D8&item_name=File+Converter+Donations&currency_code=EUR&Z3JncnB0=) or just by [saying thanks​](https://saythanks.io/to/Tichau) :).
 
 ## Troubleshooting
 
-If you encounter any problem with File Converter, you can:
+If you encounter any problem with Lume Converter, you can:
 
 * See the already known problems in the [troubleshooting section of the documentation](https://github.com/Tichau/FileConverter/wiki/Troubleshooting).
 * Or report an issue on the [bug tracker](https://github.com/Tichau/FileConverter/issues).
@@ -27,7 +66,7 @@ If you encounter any problem with File Converter, you can:
 
 ### Requirements
 
-For File Converter and its explorer extension:
+For Lume Converter and its explorer extension:
 
 * Visual Studio 2022
 
@@ -50,7 +89,7 @@ For the installer:
 4. Run the application:
 
    ```bash
-   Application\FileConverter\bin\x64\Release\FileConverter.exe
+   Application\FileConverter\bin\x64\Release\LumeConverter.exe
    ```
 
 Note: Building the solution (not only the project) also builds the Explorer shell extension and copies required middlewares next to the executable.
@@ -59,17 +98,17 @@ Note: Building the solution (not only the project) also builds the Explorer shel
 
 The app integrates into Windows Explorer’s context menu via a COM shell extension. For a developer build:
 
-1. Ensure the app path is discoverable (normally handled by the installer). For dev runs, the shell extension reads `HKCU\Software\FileConverter` value `Path` to locate the executable.
+1. Ensure the app path is discoverable (normally handled by the installer). For dev runs, the shell extension reads `HKCU\Software\LumeConverter` value `Path` to locate the executable.
 2. Register the extension using the app itself (requires elevation):
 
    ```bash
-   Application\FileConverter\bin\x64\Release\FileConverter.exe --register-shell-extension "Application\FileConverterExtension\bin\x64\Release\FileConverterExtension.dll"
+  Application\FileConverter\bin\x64\Release\LumeConverter.exe --register-shell-extension "Application\FileConverterExtension\bin\x64\Release\FileConverterExtension.dll"
    ```
 
 3. To unregister:
 
    ```bash
-   Application\FileConverter\bin\x64\Release\FileConverter.exe --unregister-shell-extension "Application\FileConverterExtension\bin\x64\Release\FileConverterExtension.dll"
+  Application\FileConverter\bin\x64\Release\LumeConverter.exe --unregister-shell-extension "Application\FileConverterExtension\bin\x64\Release\FileConverterExtension.dll"
    ```
 
 4. Reload Explorer to pick up changes (Windows 11/10): restart the “Windows Explorer” process from Task Manager, or sign out/in.
@@ -83,27 +122,27 @@ The GUI can be driven from the command line for automation:
 - Show settings window
 
   ```bash
-  FileConverter.exe --settings
+  LumeConverter.exe --settings
   ```
 
 - Convert using a preset and explicit files
 
   ```bash
-  FileConverter.exe --conversion-preset "To Webm" "C:\path\to\input.mp4"
+  LumeConverter.exe --conversion-preset "To Webm" "C:\path\to\input.mp4"
   ```
 
 - Convert a list of files via a text file (one path per line)
 
   ```bash
-  FileConverter.exe --conversion-preset "To Mp3" --input-files "C:\temp\inputs.txt"
+  LumeConverter.exe --conversion-preset "To Mp3" --input-files "C:\temp\inputs.txt"
   ```
 
 - Misc utilities
 
   ```bash
-  FileConverter.exe --version
-  FileConverter.exe --verbose
-  FileConverter.exe --post-install-init
+  LumeConverter.exe --version
+  LumeConverter.exe --verbose
+  LumeConverter.exe --post-install-init
   ```
 
 ## Troubleshooting for developers
@@ -142,11 +181,11 @@ The GUI can be driven from the command line for automation:
   1) Register it (elevated):
 
   ```bash
-  Application\FileConverter\bin\x64\Release\FileConverter.exe \
+  Application\FileConverter\bin\x64\Release\LumeConverter.exe \
     --register-shell-extension "Application\FileConverterExtension\bin\x64\Release\FileConverterExtension.dll"
   ```
 
-  2) Ensure the app path is discoverable (dev builds): set `HKCU\Software\FileConverter` string value `Path` to the full `FileConverter.exe` path.
+  2) Ensure the app path is discoverable (dev builds): set `HKCU\Software\LumeConverter` string value `Path` to the full `FileConverter.exe` path.
 
   3) Restart Explorer (Task Manager → restart "Windows Explorer"). On Windows 11, use “Show more options” in the right‑click menu.
 
@@ -160,18 +199,18 @@ The GUI can be driven from the command line for automation:
 
 - Logs and diagnostics
 
-  Run with `--verbose`. Logs are written under `C:\Users\<User>\AppData\Local\FileConverter\Diagnostics-*`.
+  Run with `--verbose`. Logs are written under `C:\Users\<User>\AppData\Local\LumeConverter\Diagnostics-*`.
 
 - Unregister extension (elevated)
 
   ```bash
-  Application\FileConverter\bin\x64\Release\FileConverter.exe \
+  Application\FileConverter\bin\x64\Release\LumeConverter.exe \
     --unregister-shell-extension "Application\FileConverterExtension\bin\x64\Release\FileConverterExtension.dll"
   ```
 
 ## Thanks
 
-Thanks to all the contributors of File Converter project.
+Thanks to the original File Converter project and all contributors.
 
 ### Localization
 
@@ -197,7 +236,7 @@ Thanks to all the contributors of File Converter project.
 
 ## Middlewares
 
-File converter uses the following middlewares:
+Lume Converter uses the following middlewares:
 
 **ffmpeg** (v7.1) as file conversion software.
 Thanks to ffmpeg devs for this awesome open source file conversion tool. [Web site link](https://ffmpeg.org)
@@ -223,5 +262,5 @@ Thanks to Thomas Levesque for his work on WpfAnimatedGif. [GitHub link](https://
 
 ## License
 
-File Converter is licensed under the GPL version 3 License.
+Lume Converter is licensed under the GPL version 3 License. Copyright notices from the original project are preserved as required by GPLv3. 
 For more information check the LICENSE.md file in your installation folder or the [gnu website](https://www.gnu.org/licenses/gpl.html).

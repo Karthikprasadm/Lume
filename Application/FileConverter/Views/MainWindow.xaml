@@ -8,7 +8,8 @@
         xmlns:controls="clr-namespace:FileConverter.Controls"
         xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d" x:Class="FileConverter.Views.MainWindow"
-        Height="500" Width="950" MinHeight="480" MinWidth="640" WindowStartupLocation="CenterScreen" Icon="/FileConverter;component/Resources/ApplicationIcon.ico"
+        AllowDrop="True"
+        Height="500" Width="950" MinHeight="480" MinWidth="640" WindowStartupLocation="CenterScreen" Icon="/LumeConverter;component/Resources/ApplicationIcon.ico"
         DataContext="{Binding Main, Source={StaticResource Locator}}">
     <behaviors:Interaction.Triggers>
         <behaviors:EventTrigger EventName="Closing">
@@ -37,6 +38,7 @@
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="64" />
                 <ColumnDefinition Width="64" />
             </Grid.ColumnDefinitions>
@@ -45,10 +47,14 @@
                 <Label Content="{x:Static project:Resources.ConversionQueueTitle}" VerticalAlignment="Center" FontSize="18" FontWeight="Bold"/>
                 <Label Content="{Binding InformationMessage}" VerticalAlignment="Center" FontSize="13.333" HorizontalAlignment="Right"/>
             </DockPanel>
-            <Button Grid.Column="1" Margin="3" Command="{Binding ShowDiagnosticsCommand}" ToolTip="{x:Static project:Resources.DiagnosticsButtonTooltip}" Style="{StaticResource TileButton}">
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="8,0">
+                <Button Margin="3" Padding="12,6" Content="Start" Command="{Binding StartConversionsCommand}" ToolTip="Start all queued conversions" />
+                <Button Margin="3" Padding="12,6" Content="Retry failed" Command="{Binding RetryFailedCommand}" ToolTip="Requeue failed jobs" />
+            </StackPanel>
+            <Button Grid.Column="2" Margin="3" Command="{Binding ShowDiagnosticsCommand}" ToolTip="{x:Static project:Resources.DiagnosticsButtonTooltip}" Style="{StaticResource TileButton}">
                 <Image HorizontalAlignment="Left" Height="48" Width="48" VerticalAlignment="Top" Source="/Resources/LogIcon.png" />
             </Button>
-            <Button Grid.Column="2" Margin="3" Command="{Binding ShowSettingsCommand}" ToolTip="{x:Static project:Resources.SettingsButtonTooltip}" Style="{StaticResource TileButton}">
+            <Button Grid.Column="3" Margin="3" Command="{Binding ShowSettingsCommand}" ToolTip="{x:Static project:Resources.SettingsButtonTooltip}" Style="{StaticResource TileButton}">
                 <Image HorizontalAlignment="Left" Height="48" Width="48" VerticalAlignment="Top" Source="/Resources/SettingsIcon.ico" />
             </Button>
         </Grid>

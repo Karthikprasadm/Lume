@@ -107,6 +107,8 @@ namespace FileConverter.ConversionJobs
         private void ConvertPdf()
         {
             MagickReadSettings settings = new MagickReadSettings();
+            // Ensure PDF pages render on a white background (avoid black when alpha is present)
+            settings.BackgroundColor = MagickColors.White;
 
             float dpi = BaseDpiForPdfConversion;
             float scaleFactor = this.ConversionPreset.GetSettingsValue<float>(ConversionPreset.ConversionSettingKeys.ImageScale);
@@ -142,6 +144,11 @@ namespace FileConverter.ConversionJobs
                         image.Scale(new Percentage(100 / PdfSuperSamplingRatio));
 #pragma warning restore CS0162 // Unreachable code detected
                     }
+
+                    // Flatten any transparency onto white and normalize color space for consistency
+                    image.BackgroundColor = MagickColors.White;
+                    image.Alpha(AlphaOption.Remove);
+                    image.ColorSpace = ColorSpace.sRGB;
 
                     this.ConvertImage(image, true);
                     

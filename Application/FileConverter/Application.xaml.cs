@@ -95,6 +95,21 @@ namespace FileConverter
             // Navigate to the wanted view.
             INavigationService navigationService = Ioc.Default.GetRequiredService<INavigationService>();
 
+            // Optional middleware integrity check
+            try
+            {
+                var settingsSvc = Ioc.Default.GetRequiredService<ISettingsService>();
+                if (settingsSvc.Settings.VerifyMiddlewareIntegrityAtStartup)
+                {
+                    string appDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                    if (!Services.MiddlewareIntegrity.VerifyAll(appDir, out string msg))
+                    {
+                        Diagnostics.Debug.LogError($"Middleware integrity check failed: {msg}");
+                    }
+                }
+            }
+            catch { }
+
             if (this.showHelp)
             {
                 navigationService.Show(Pages.Help);
@@ -131,7 +146,7 @@ namespace FileConverter
 
             if (!this.isSessionEnding && upgradeService.UpgradeVersionDescription != null && upgradeService.UpgradeVersionDescription.NeedToUpgrade)
             {
-                Debug.Log($"A new version of file converter has been found: {upgradeService.UpgradeVersionDescription.LatestVersion}.");
+                Debug.Log($"A new version of Lume Converter has been found: {upgradeService.UpgradeVersionDescription.LatestVersion}.");
 
                 if (string.IsNullOrEmpty(upgradeService.UpgradeVersionDescription.InstallerPath))
                 {
@@ -153,7 +168,7 @@ namespace FileConverter
                     }
 
                     // Start process.
-                    Debug.Log($"Start file converter upgrade from version {ApplicationVersion} to {upgradeService.UpgradeVersionDescription.LatestVersion}.");
+                    Debug.Log($"Start Lume Converter upgrade from version {ApplicationVersion} to {upgradeService.UpgradeVersionDescription.LatestVersion}.");
 
                     ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo(installerPath) { UseShellExecute = true, };
 
@@ -202,9 +217,17 @@ namespace FileConverter
             services
               .AddSingleton<INavigationService, NavigationService>()
               .AddSingleton<IConversionService, ConversionService>()
-              .AddSingleton<ISettingsService, SettingsService>();
+              .AddSingleton<ISettingsService, SettingsService>()
+              .AddSingleton<WatchService>();
 
             Ioc.Default.ConfigureServices(services.BuildServiceProvider());
+
+            // Initialize watchers if any
+            try
+            {
+                Ioc.Default.GetRequiredService<WatchService>();
+            }
+            catch { }
 
             INavigationService navigationService = Ioc.Default.GetRequiredService<INavigationService>();
 
@@ -218,9 +241,9 @@ namespace FileConverter
         private void Initialize()
         {
 #if BUILD32
-            Diagnostics.Debug.Log("File Converter v" + ApplicationVersion.ToString() + " (32 bits)");
+            Diagnostics.Debug.Log("Lume Converter v" + ApplicationVersion.ToString() + " (32 bits)");
 #else
-            Diagnostics.Debug.Log("File Converter v" + ApplicationVersion.ToString() + " (64 bits)");
+            Diagnostics.Debug.Log("Lume Converter v" + ApplicationVersion.ToString() + " (64 bits)");
 #endif
 
             // Retrieve arguments.
@@ -316,6 +339,49 @@ namespace FileConverter
                             Application.AskForShutdown();
                             return;
 
+                        case "register-associations":
+                            {
+                                try
+                                {
+                                    string exe = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                                    // Minimal example: set Open with Lume Converter for common types under HKCU
+                                    string[] exts = new[] { ".mp4", ".mkv", ".mov", ".avi", ".mp3", ".wav", ".flac", ".png", ".jpg", ".webp", ".pdf" };
+                                    foreach (var ext in exts)
+                                    {
+                                        using (var k = Microsoft.Win32.Registry.CurrentUser.CreateSubKey($"Software\\Classes\\{ext}\\shell\\Open with Lume Converter\\command"))
+                                        {
+                                            k.SetValue(string.Empty, $"\"{exe}\" \"%1\"");
+                                        }
+                                    }
+                                    Debug.Log("File associations registered.");
+                                }
+                                catch (Exception ex)
+                                {
+                                    Debug.LogError($"Failed to register associations: {ex.Message}");
+                                }
+                                Application.AskForShutdown();
+                                return;
+                            }
+
+                        case "unregister-associations":
+                            {
+                                try
+                                {
+                                    string[] exts = new[] { ".mp4", ".mkv", ".mov", ".avi", ".mp3", ".wav", ".flac", ".png", ".jpg", ".webp", ".pdf" };
+                                    foreach (var ext in exts)
+                                    {
+                                        Microsoft.Win32.Registry.CurrentUser.DeleteSubKeyTree($"Software\\Classes\\{ext}\\shell\\Open with Lume Converter", false);
+                                    }
+                                    Debug.Log("File associations unregistered.");
+                                }
+                                catch (Exception ex)
+                                {
+                                    Debug.LogError($"Failed to unregister associations: {ex.Message}");
+                                }
+                                Application.AskForShutdown();
+                                return;
+                            }
+
                         case "settings":
                             this.showSettings = true;
                             break;
@@ -388,7 +454,7 @@ namespace FileConverter
             ISettingsService settingsService = Ioc.Default.GetRequiredService<ISettingsService>();
             if (settingsService.Settings == null)
             {
-                Debug.LogError(errorCode: 0x04, "Can't load File Converter settings. The application will now shutdown, if you want to fix the problem yourself please edit or delete the file: C:\\Users\\UserName\\AppData\\Local\\FileConverter\\Settings.user.xml.");
+                Debug.LogError(errorCode: 0x04, "Can't load Lume Converter settings. The application will now shutdown, if you want to fix the problem yourself please edit or delete the file: C:\\Users\\UserName\\AppData\\Local\\LumeConverter\\Settings.user.xml.");
                 Application.AskForShutdown();
                 return;
             }

@@ -100,7 +100,7 @@ namespace FileConverterExtension
 
             ToolStripMenuItem fileConverterItem = new ToolStripMenuItem
             {
-                Text = "File Converter",
+                Text = "Lume Converter",
                 Image = new Icon(Properties.Resources.ApplicationIcon, SystemInformation.SmallIconSize).ToBitmap(),
             };
 
@@ -264,21 +264,21 @@ namespace FileConverterExtension
         {
             if (string.IsNullOrEmpty(PathHelpers.FileConverterPath))
             {
-                MessageBox.Show("Can't retrieve the file converter executable path. You should try to reinstall the application.");
+                MessageBox.Show("Can't retrieve the Lume Converter executable path. You should try to reinstall the application.");
                 return;
             }
 
             if (!File.Exists(PathHelpers.FileConverterPath))
             {
-                MessageBox.Show($"Can't find the file converter executable ({PathHelpers.FileConverterPath}). You should try to reinstall the application.");
+                MessageBox.Show($"Can't find the Lume Converter executable ({PathHelpers.FileConverterPath}). You should try to reinstall the application.");
                 return;
             }
 
             ProcessStartInfo processStartInfo = new ProcessStartInfo(PathHelpers.FileConverterPath)
             {
-                CreateNoWindow = false, 
-                UseShellExecute = false, 
-                RedirectStandardOutput = false,
+                CreateNoWindow = false,
+                UseShellExecute = true,
+                WorkingDirectory = Path.GetDirectoryName(PathHelpers.FileConverterPath),
             };
 
             // Build arguments string.
@@ -357,12 +357,22 @@ namespace FileConverterExtension
             var processStartInfo = new ProcessStartInfo(PathHelpers.FileConverterPath)
             {
                 CreateNoWindow = false,
-                UseShellExecute = false,
-                RedirectStandardOutput = false,
+                UseShellExecute = true,
+                WorkingDirectory = Path.GetDirectoryName(PathHelpers.FileConverterPath),
                 Arguments = stringBuilder.ToString(),
             };
 
-            Process exeProcess = Process.Start(processStartInfo);
+            Process exeProcess = null;
+            try
+            {
+                exeProcess = Process.Start(processStartInfo);
+            }
+            catch (System.Exception ex)
+            {
+                // Show a message to help users know why nothing happened
+                MessageBox.Show($"Failed to start Lume Converter (" + ex.Message + ").\nPath: " + PathHelpers.FileConverterPath);
+                return;
+            }
             exeProcess.EnableRaisingEvents = true;
             exeProcess.Exited += (sender, args) =>
             {

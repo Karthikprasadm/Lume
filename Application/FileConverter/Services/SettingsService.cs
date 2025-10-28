@@ -107,6 +107,13 @@ namespace FileConverter.Services
         public void SaveSettings()
         {
             this.Save(this.Settings);
+            // Notify watchers if watch folders changed
+            try
+            {
+                var watch = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<WatchService>();
+                watch.RebuildWatchers();
+            }
+            catch { }
         }
 
         public void RevertSettings()

@@ -12,12 +12,12 @@ namespace FileConverter.ValueConverters
         {
             if (!(value is FileConverter.Version))
             {
-                return "File Converter";
+                return "Lume Converter";
             }
 
             FileConverter.Version version = (FileConverter.Version)value;
 
-            return $"File Converter v{version}";
+            return $"Lume Converter v{version}";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

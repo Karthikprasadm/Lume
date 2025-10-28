@@ -56,6 +56,20 @@ namespace FileConverter.Services
             this.OnPropertyChanged(nameof(this.ConversionJobs));
         }
 
+        public void RetryFailed()
+        {
+            for (int i = 0; i < this.conversionJobs.Count; i++)
+            {
+                var job = this.conversionJobs[i];
+                if (job.State == ConversionState.Failed)
+                {
+                    // Reset minimal state to be ready again
+                    job.PrepareConversion();
+                }
+            }
+            this.OnPropertyChanged(nameof(this.ConversionJobs));
+        }
+
         public void ConvertFilesAsync()
         {
             Thread fileConvertionThread = Helpers.InstantiateThread("ConversionQueueThread", this.ConvertFiles);
